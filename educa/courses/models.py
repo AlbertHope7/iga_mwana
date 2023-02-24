@@ -35,7 +35,7 @@ class Course(models.Model):
 
 
 class Module(models.Model):
-    courses = models.ForeignKey(
+    course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="modules"
     )
     title = models.CharField(max_length=200)
