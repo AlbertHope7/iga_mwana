@@ -74,7 +74,7 @@ class CourseModuleUpdateView(TemplateResponseMixin, View):
         return self.render_to_response(
             {
                 "course": self.course,
-                "formset": format,
+                "formset": formset,
             }
         )
 
@@ -139,3 +139,19 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
                 "objects": self.obj,
             }
         )
+
+
+class ContentDeleteView(View):
+    def post(self, request, id):
+        content = get_object_or_404(
+            Content,
+            id=id,
+            module__course__owner=request.user,
+        )
+        module = content.module
+        # deletes the related Text, Video, Image, or File object.
+        content.item.delete()
+        # deletes the content object
+        content.delete()
+        # redirect to other contents of the module
+        return redirect("module_content_list", module.id)
