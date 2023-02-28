@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.shortcuts import redirect, get_object_or_404
 from django.views.generic.base import TemplateResponseMixin, View
 from django.apps import apps
+from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 
 from .models import Course, Module, Content
 from .forms import ModuleFormSet
@@ -155,3 +156,22 @@ class ContentDeleteView(View):
         content.delete()
         # redirect to other contents of the module
         return redirect("module_content_list", module.id)
+
+
+class ModuleContentListView(TemplateResponseMixin, View):
+    template_name = "courses/manage/module/content_list.html"
+
+    def get(self, request, module_id):
+        module = get_object_or_404(
+            Module,
+            id=module_id,
+            course__owner=request.user,
+        )
+        return self.render_to_response({"module": module})
+
+
+# class ModuleOrderView(CsrfExemptMixin, JsonRequestResponseMixin, View):
+#     def post(self, request):
+#         for id, order in self.request__json.items():
+#             Module.objects.filter(id=id, course__owner=request.user).update(order=order)
+#         return self.render_json_response({"saved": "OK"})
